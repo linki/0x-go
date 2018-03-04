@@ -67,33 +67,5 @@ func hashOrder(cmd *cobra.Command, _ []string) {
 		Salt: util.StrToBig(salt),
 	}
 
-	fmt.Printf(`exchange-contract-address: %s
-maker: %s
-taker: %s
-maker-token-address: %s
-taker-token-address: %s
-fee-recipient: %s
-maker-token-amount: %s
-taker-token-amount: %s
-maker-fee: %s
-taker-fee: %s
-expiration-unix-timestamp-sec: %d
-salt: %s
-orderHash: %s
-`, exchangeContractAddress,
-		maker,
-		taker,
-		makerTokenAddress,
-		takerTokenAddress,
-		feeRecipient,
-		makerTokenAmount,
-		takerTokenAmount,
-		makerFee,
-		takerFee,
-		expirationUnixTimestampSec,
-		salt,
-		order.CalculateOrderHash().Hex(),
-	)
-
 	fmt.Fprintf(cmd.OutOrStdout(), "%s\n", order.CalculateOrderHash().Hex())
 }
