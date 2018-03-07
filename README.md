@@ -58,4 +58,4 @@ curl -Ss https://api.radarrelay.com/0x/v0/order/0x10d750751d98bc8a9c29542118fbcf
 ### Requirements
 
 * Go 1.9 (It calculate a different hash with 1.10)
-* Ethereum 1.7
+* Ethereum 1.8
