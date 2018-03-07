@@ -3,6 +3,10 @@
   version = "~1.8.2"
 
 [[constraint]]
+  name = "github.com/h2non/gock"
+  version = "~1.0.8"
+
+[[constraint]]
   name = "github.com/sirupsen/logrus"
   version = "1.0.4"
 
