@@ -14,8 +14,8 @@
     "common/hexutil",
     "crypto/sha3"
   ]
-  revision = "4bb3c89d44e372e6a9ab85a8be0c9345265c763a"
-  version = "v1.7.3"
+  revision = "b8b9f7f4476a30a0aaf6077daade6ae77f969960"
+  version = "v1.8.2"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -54,6 +54,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "247af0c82fae9a3b998798ee89a9aa55d565d64534cf62326155c2763676f02e"
+  inputs-digest = "6f08d6d7e0f0b5772df1415272c4772f68727dffd42a9c50393e5826373fb089"
   solver-name = "gps-cdcl"
   solver-version = 1
