@@ -26,6 +26,8 @@ func (suite *TokensPairsSuite) SetupTest() {
 
 func (suite *TokensPairsSuite) TearDownTest() {
 	tokensPairsCmd.SetOutput(nil)
+	suite.True(gock.IsDone())
+	gock.Off()
 }
 
 func (suite *TokensPairsSuite) TestTokensPairs() {
