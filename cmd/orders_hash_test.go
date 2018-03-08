@@ -63,10 +63,13 @@ func (suite *OrdersHashSuite) TestOrdersHash() {
 			"0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942\n",
 		},
 	} {
-		err := ordersHashCmd.ParseFlags(tt.flags)
-		suite.Require().NoError(err)
+		args := append(
+			[]string{"orders", "hash"},
+			tt.flags...,
+		)
 
-		ordersHashCmd.Run(ordersHashCmd, nil)
+		rootCmd.SetArgs(args)
+		rootCmd.Execute()
 
 		output, err := ioutil.ReadAll(suite.console)
 		suite.Require().NoError(err)
