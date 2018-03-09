@@ -8,8 +8,16 @@ import (
 )
 
 var (
+	relayerURL string
+)
+
+var (
 	rootCmd = &cobra.Command{}
 )
+
+func init() {
+	rootCmd.PersistentFlags().StringVar(&relayerURL, "relayer-url", "", "")
+}
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {

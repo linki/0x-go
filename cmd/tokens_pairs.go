@@ -11,10 +11,6 @@ import (
 )
 
 var (
-	relayerURL string
-)
-
-var (
 	tokensPairsCmd = &cobra.Command{
 		Use: "pairs",
 		Run: listTokenPairs,
@@ -22,8 +18,6 @@ var (
 )
 
 func init() {
-	tokensPairsCmd.Flags().StringVar(&relayerURL, "url", "", "")
-
 	tokensCmd.AddCommand(tokensPairsCmd)
 }
 

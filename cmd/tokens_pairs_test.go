@@ -48,7 +48,7 @@ func (suite *TokensPairsSuite) TestTokensPairs() {
 				},
 			},
 			[]string{
-				"--url", suite.url,
+				"--relayer-url", suite.url,
 			},
 			"0x323b5d4c32345ced77393b3530b1eed0f346429d 0xef7fff64389b814a946f3e92105513705ca6b990\n",
 		},
