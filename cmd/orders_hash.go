@@ -13,12 +13,6 @@ import (
 )
 
 var (
-	exchangeContractAddress    string
-	makerTokenAddress          string
-	takerTokenAddress          string
-	maker                      string
-	taker                      string
-	feeRecipient               string
 	makerTokenAmount           string
 	takerTokenAmount           string
 	makerFee                   string
@@ -35,12 +29,6 @@ var (
 )
 
 func init() {
-	ordersHashCmd.Flags().StringVar(&exchangeContractAddress, "exchange-contract-address", "", "")
-	ordersHashCmd.Flags().StringVar(&maker, "maker", "", "")
-	ordersHashCmd.Flags().StringVar(&taker, "taker", "", "")
-	ordersHashCmd.Flags().StringVar(&makerTokenAddress, "maker-token-address", "", "")
-	ordersHashCmd.Flags().StringVar(&takerTokenAddress, "taker-token-address", "", "")
-	ordersHashCmd.Flags().StringVar(&feeRecipient, "fee-recipient", "", "")
 	ordersHashCmd.Flags().StringVar(&makerTokenAmount, "maker-token-amount", "", "")
 	ordersHashCmd.Flags().StringVar(&takerTokenAmount, "taker-token-amount", "", "")
 	ordersHashCmd.Flags().StringVar(&makerFee, "maker-fee", "", "")

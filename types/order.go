@@ -1,7 +1,9 @@
 package types
 
 import (
+	"encoding/json"
 	"math/big"
+	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -9,6 +11,7 @@ import (
 )
 
 type Order struct {
+	OrderHash                  common.Hash
 	ExchangeContractAddress    common.Address
 	Maker                      common.Address
 	Taker                      common.Address
@@ -21,6 +24,7 @@ type Order struct {
 	TakerFee                   *big.Int
 	ExpirationUnixTimestampSec time.Time
 	Salt                       *big.Int
+	Signature                  Signature
 }
 
 func (o *Order) CalculateOrderHash() common.Hash {
@@ -40,4 +44,48 @@ func (o *Order) CalculateOrderHash() common.Hash {
 	sha.Write(common.BigToHash(o.Salt).Bytes())
 
 	return common.BytesToHash(sha.Sum(nil))
+}
+
+func (o *Order) UnmarshalJSON(b []byte) error {
+	order := map[string]interface{}{}
+
+	err := json.Unmarshal(b, &order)
+	if err != nil {
+		return err
+	}
+
+	o.OrderHash = common.HexToHash(order["orderHash"].(string))
+	o.ExchangeContractAddress = common.HexToAddress(order["exchangeContractAddress"].(string))
+	o.Maker = common.HexToAddress(order["maker"].(string))
+	o.Taker = common.HexToAddress(order["taker"].(string))
+	o.MakerTokenAddress = common.HexToAddress(order["makerTokenAddress"].(string))
+	o.TakerTokenAddress = common.HexToAddress(order["takerTokenAddress"].(string))
+	o.FeeRecipient = common.HexToAddress(order["feeRecipient"].(string))
+
+	o.MakerTokenAmount = new(big.Int)
+	o.TakerTokenAmount = new(big.Int)
+	o.MakerFee = new(big.Int)
+	o.TakerFee = new(big.Int)
+	o.Salt = new(big.Int)
+
+	o.MakerTokenAmount.UnmarshalJSON([]byte(order["makerTokenAmount"].(string)))
+	o.TakerTokenAmount.UnmarshalJSON([]byte(order["takerTokenAmount"].(string)))
+	o.MakerFee.UnmarshalJSON([]byte(order["makerFee"].(string)))
+	o.TakerFee.UnmarshalJSON([]byte(order["takerFee"].(string)))
+	o.Salt.UnmarshalJSON([]byte(order["salt"].(string)))
+
+	sig := order["ecSignature"].(map[string]interface{})
+	o.Signature = Signature{
+		V: byte(sig["v"].(float64)),
+		R: common.HexToHash(sig["r"].(string)),
+		S: common.HexToHash(sig["s"].(string)),
+	}
+
+	timestamp, err := strconv.ParseInt(order["expirationUnixTimestampSec"].(string), 10, 64)
+	if err != nil {
+		return err
+	}
+	o.ExpirationUnixTimestampSec = time.Unix(timestamp, 0)
+
+	return nil
 }
