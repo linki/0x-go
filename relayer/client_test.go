@@ -221,7 +221,7 @@ func (suite *ClientSuite) TestGetOrdersWithMalformedJSON() {
 	suite.Contains(err.Error(), "error parsing json response")
 }
 
-func (suite *ClientSuite) TestGetTOrdersWithContext() {
+func (suite *ClientSuite) TestGetOrdersWithContext() {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
