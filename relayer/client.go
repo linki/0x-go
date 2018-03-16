@@ -129,3 +129,37 @@ func (c *Client) GetOrders(ctx context.Context, opts GetOrdersOpts) ([]types.Ord
 
 	return orders, nil
 }
+
+func (c *Client) GetOrder(ctx context.Context, orderHash common.Hash) (types.Order, error) {
+	req, err := http.NewRequest(http.MethodGet, c.url+"/order/"+orderHash.Hex(), nil)
+	if err != nil {
+		return types.Order{}, err
+	}
+
+	resp, err := c.client.Do(req.WithContext(ctx))
+	if err != nil {
+		return types.Order{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return types.Order{}, fmt.Errorf("order not found: %s", orderHash.Hex())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return types.Order{}, fmt.Errorf("erroneous status code: %s", resp.Status)
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return types.Order{}, err
+	}
+
+	order := types.Order{}
+
+	if err := json.Unmarshal(respBody, &order); err != nil {
+		return types.Order{}, fmt.Errorf("error parsing json response: %v", err)
+	}
+
+	return order, nil
+}

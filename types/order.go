@@ -54,7 +54,6 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	o.OrderHash = common.HexToHash(order["orderHash"].(string))
 	o.ExchangeContractAddress = common.HexToAddress(order["exchangeContractAddress"].(string))
 	o.Maker = common.HexToAddress(order["maker"].(string))
 	o.Taker = common.HexToAddress(order["taker"].(string))
@@ -86,6 +85,13 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	o.ExpirationUnixTimestampSec = time.Unix(timestamp, 0)
+
+	// When the JSON doesn't contain an order hash, we calculate it ourself.
+	if order["orderHash"] != nil {
+		o.OrderHash = common.HexToHash(order["orderHash"].(string))
+	} else {
+		o.OrderHash = o.CalculateOrderHash()
+	}
 
 	return nil
 }
