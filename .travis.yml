@@ -15,8 +15,10 @@ matrix:
 
 install:
 - go get github.com/mattn/goveralls
+- go get github.com/lawrencewoodman/roveralls
 - go get github.com/golang/dep/cmd/dep
 - dep ensure -vendor-only
 
 script:
-- goveralls -service=travis-ci
+- roveralls
+- goveralls -coverprofile=roveralls.coverprofile -service=travis-ci
