@@ -73,11 +73,30 @@ func (suite *ClientSuite) TestGetTokenPairs() {
 			},
 		})
 
-	tokenPairs, err := suite.client.GetTokenPairs(context.Background())
+	tokenPairs, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{})
 	suite.NoError(err)
 
 	suite.Require().Len(tokenPairs, 1)
 	suite.Equal(suite.tokenPairAB, tokenPairs[0])
+}
+
+func (suite *ClientSuite) TestGetTokenPairsWithFilters() {
+	gock.New(suite.url).
+		Get("/token_pairs").
+		MatchParams(map[string]string{
+			"tokenA": "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+			"tokenB": "0xef7fff64389b814a946f3e92105513705ca6b990",
+		}).
+		Reply(http.StatusOK).
+		JSON([]map[string]interface{}{})
+
+	tokenPairs, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{
+		TokenA: common.HexToAddress("0x323b5d4c32345ced77393b3530b1eed0f346429d"),
+		TokenB: common.HexToAddress("0xef7fff64389b814a946f3e92105513705ca6b990"),
+	})
+	suite.NoError(err)
+
+	suite.Len(tokenPairs, 0)
 }
 
 func (suite *ClientSuite) TestGetTokenPairsWithUnsuccessfulResponse() {
@@ -85,7 +104,7 @@ func (suite *ClientSuite) TestGetTokenPairsWithUnsuccessfulResponse() {
 		Get("/token_pairs").
 		Reply(http.StatusServiceUnavailable)
 
-	_, err := suite.client.GetTokenPairs(context.Background())
+	_, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "erroneous status code")
 	suite.Contains(err.Error(), "503 Service Unavailable")
@@ -97,7 +116,7 @@ func (suite *ClientSuite) TestGetTokenPairsWithMalformedJSON() {
 		Reply(http.StatusOK).
 		BodyString("//\\")
 
-	_, err := suite.client.GetTokenPairs(context.Background())
+	_, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "error parsing json response")
 }
@@ -106,7 +125,7 @@ func (suite *ClientSuite) TestGetTokenPairsWithContext() {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := suite.client.GetTokenPairs(ctx)
+	_, err := suite.client.GetTokenPairs(ctx, GetTokenPairsOpts{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "context canceled")
 }

@@ -32,9 +32,10 @@ func (suite *TokensPairsSuite) TearDownTest() {
 
 func (suite *TokensPairsSuite) TestTokensPairs() {
 	for _, tt := range []struct {
-		response []map[string]interface{}
-		flags    []string
-		expected string
+		response       []map[string]interface{}
+		flags          []string
+		expectedParams map[string]string
+		expected       string
 	}{
 		{
 			[]map[string]interface{}{
@@ -49,12 +50,19 @@ func (suite *TokensPairsSuite) TestTokensPairs() {
 			},
 			[]string{
 				"--relayer-url", suite.url,
+				"--token-a", "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+				"--token-b", "0xef7fff64389b814a946f3e92105513705ca6b990",
+			},
+			map[string]string{
+				"tokenA": "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+				"tokenB": "0xef7fff64389b814a946f3e92105513705ca6b990",
 			},
 			"0x323b5d4c32345ced77393b3530b1eed0f346429d 0xef7fff64389b814a946f3e92105513705ca6b990\n",
 		},
 	} {
 		gock.New(suite.url).
 			Get("/token_pairs").
+			MatchParams(tt.expectedParams).
 			Reply(http.StatusOK).
 			JSON(tt.response)
 

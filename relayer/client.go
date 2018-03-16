@@ -27,8 +27,27 @@ func NewClient(url string) *Client {
 	}
 }
 
-func (c *Client) GetTokenPairs(ctx context.Context) ([]types.TokenPair, error) {
-	req, err := http.NewRequest(http.MethodGet, c.url+"/token_pairs", nil)
+type GetTokenPairsOpts struct {
+	TokenA common.Address
+	TokenB common.Address
+}
+
+func (c *Client) GetTokenPairs(ctx context.Context, opts GetTokenPairsOpts) ([]types.TokenPair, error) {
+	reqURL, err := url.Parse(c.url + "/token_pairs")
+	if err != nil {
+		return nil, err
+	}
+
+	query := url.Values{}
+	if !util.EmptyAddress(opts.TokenA) {
+		query["tokenA"] = []string{strings.ToLower(opts.TokenA.Hex())}
+	}
+	if !util.EmptyAddress(opts.TokenB) {
+		query["tokenB"] = []string{strings.ToLower(opts.TokenB.Hex())}
+	}
+	reqURL.RawQuery = query.Encode()
+
+	req, err := http.NewRequest(http.MethodGet, reqURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
