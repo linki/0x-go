@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/aristanetworks/goarista"
+  packages = ["monotime"]
+  revision = "9cf7f6b188ea30684caffe3d18e03e61d7193e25"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/btcsuite/btcd"
+  packages = ["btcec"]
+  revision = "2be2f12b358dc57d70b8f501b00be450192efbc3"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -10,12 +22,40 @@
 [[projects]]
   name = "github.com/ethereum/go-ethereum"
   packages = [
+    ".",
+    "accounts",
+    "accounts/keystore",
     "common",
     "common/hexutil",
-    "crypto/sha3"
+    "common/math",
+    "common/mclock",
+    "core/types",
+    "crypto",
+    "crypto/randentropy",
+    "crypto/secp256k1",
+    "crypto/sha3",
+    "ethdb",
+    "event",
+    "log",
+    "metrics",
+    "params",
+    "rlp",
+    "trie"
   ]
   revision = "b8b9f7f4476a30a0aaf6077daade6ae77f969960"
   version = "v1.8.2"
+
+[[projects]]
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  revision = "259ab82a6cad3992b4e21ff5cac294ccb06474bc"
+  version = "v1.7.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/snappy"
+  packages = ["."]
+  revision = "553a641470496b2327abcac10b36396bd98e45c9"
 
 [[projects]]
   name = "github.com/h2non/gock"
@@ -30,10 +70,22 @@
   version = "v1.0"
 
 [[projects]]
+  name = "github.com/pborman/uuid"
+  packages = ["."]
+  revision = "e790cca94e6cc75c7064b1332e63811d4aae1a53"
+  version = "v1.1"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/rjeczalik/notify"
+  packages = ["."]
+  revision = "d152f3ce359a5464dc41e84a8919fc67e55bbbf0"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -65,8 +117,31 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/syndtr/goleveldb"
+  packages = [
+    "leveldb",
+    "leveldb/cache",
+    "leveldb/comparer",
+    "leveldb/errors",
+    "leveldb/filter",
+    "leveldb/iterator",
+    "leveldb/journal",
+    "leveldb/memdb",
+    "leveldb/opt",
+    "leveldb/storage",
+    "leveldb/table",
+    "leveldb/util"
+  ]
+  revision = "169b1b37be738edb2813dab48c97a549bcf99bb5"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = [
+    "pbkdf2",
+    "scrypt",
+    "ssh/terminal"
+  ]
   revision = "85f98707c97e11569271e4d9b3d397e079c4f4d0"
 
 [[projects]]
@@ -78,9 +153,21 @@
   ]
   revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
+[[projects]]
+  name = "gopkg.in/fatih/set.v0"
+  packages = ["."]
+  revision = "57907de300222151a123d29255ed17f5ed43fad3"
+  version = "v0.1.0"
+
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/karalabe/cookiejar.v2"
+  packages = ["collections/prque"]
+  revision = "8dcd6a7f4951f6ff3ee9cbb919a06d8925822e57"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "90d9d728b0ca14902afff6faceb2536e88810e10a05ca343a811351749da8b6d"
+  inputs-digest = "822652dcbd4ea415ee9037c862e6fcb17237c5b6eb17abac7b782151cde0d7a4"
   solver-name = "gps-cdcl"
   solver-version = 1
