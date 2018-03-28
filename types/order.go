@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"strconv"
 	"time"
@@ -94,4 +95,28 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 	}
 
 	return nil
+}
+
+func (o *Order) MarshalJSON() ([]byte, error) {
+	order := map[string]interface{}{
+		"orderHash":                  o.OrderHash,
+		"exchangeContractAddress":    o.ExchangeContractAddress,
+		"maker":                      o.Maker,
+		"taker":                      o.Taker,
+		"makerTokenAddress":          o.MakerTokenAddress,
+		"takerTokenAddress":          o.TakerTokenAddress,
+		"feeRecipient":               o.FeeRecipient,
+		"makerTokenAmount":           o.MakerTokenAmount.String(),
+		"takerTokenAmount":           o.TakerTokenAmount.String(),
+		"makerFee":                   o.MakerFee.String(),
+		"takerFee":                   o.TakerFee.String(),
+		"expirationUnixTimestampSec": fmt.Sprintf("%d", o.ExpirationUnixTimestampSec.Unix()),
+		"salt": o.Salt.String(),
+		"ecSignature": map[string]interface{}{
+			"v": o.Signature.V,
+			"r": o.Signature.R,
+			"s": o.Signature.S,
+		},
+	}
+	return json.Marshal(order)
 }

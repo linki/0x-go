@@ -69,9 +69,9 @@ func (suite *OrdersHashSuite) TestOrdersHash() {
 			[]string{"orders", "hash"},
 			tt.flags...,
 		)
-
 		rootCmd.SetArgs(args)
-		rootCmd.Execute()
+
+		suite.Require().NoError(rootCmd.Execute())
 
 		output, err := ioutil.ReadAll(suite.console)
 		suite.Require().NoError(err)

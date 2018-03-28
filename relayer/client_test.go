@@ -110,7 +110,7 @@ func (suite *ClientSuite) TestGetTokenPairsWithUnsuccessfulResponse() {
 	suite.Contains(err.Error(), "503 Service Unavailable")
 }
 
-func (suite *ClientSuite) TestGetTokenPairsWithMalformedJSON() {
+func (suite *ClientSuite) TestGetTokenPairsWithMalformedJSONResponse() {
 	gock.New(suite.url).
 		Get("/token_pairs").
 		Reply(http.StatusOK).
@@ -229,7 +229,7 @@ func (suite *ClientSuite) TestGetOrdersWithUnsuccessfulResponse() {
 	suite.Contains(err.Error(), "503 Service Unavailable")
 }
 
-func (suite *ClientSuite) TestGetOrdersWithMalformedJSON() {
+func (suite *ClientSuite) TestGetOrdersWithMalformedJSONResponse() {
 	gock.New(suite.url).
 		Get("/orders").
 		Reply(http.StatusOK).
@@ -326,7 +326,7 @@ func (suite *ClientSuite) TestGetOrderWithUnsuccessfulResponse() {
 	suite.Contains(err.Error(), "503 Service Unavailable")
 }
 
-func (suite *ClientSuite) TestGetOrderWithMalformedJSON() {
+func (suite *ClientSuite) TestGetOrderWithMalformedJSONResponse() {
 	gock.New(suite.url).
 		Get("/order/0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942").
 		Reply(http.StatusOK).
@@ -342,6 +342,98 @@ func (suite *ClientSuite) TestGetOrderWithContext() {
 	cancel()
 
 	_, err := suite.client.GetOrder(ctx, common.Hash{})
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), "context canceled")
+}
+
+// POST /order
+
+func (suite *ClientSuite) TestCreateOrder() {
+	gock.New(suite.url).
+		Post("/order").
+		JSON(map[string]interface{}{
+			"orderHash":                  "0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942",
+			"exchangeContractAddress":    "0x12459c951127e0c374ff9105dda097662a027093",
+			"maker":                      "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
+			"taker":                      "0x0000000000000000000000000000000000000000",
+			"makerTokenAddress":          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+			"takerTokenAddress":          "0xe41d2489571d322189246dafa5ebde1f4699f498",
+			"feeRecipient":               "0xa258b39954cef5cb142fd567a46cddb31a670124",
+			"makerTokenAmount":           "18981000000000000",
+			"takerTokenAmount":           "19000000000000000000",
+			"makerFee":                   "0",
+			"takerFee":                   "0",
+			"expirationUnixTimestampSec": "1518201120",
+			"salt": "58600101225676680041453168589125977076540694791976419610199695339725548478315",
+			"ecSignature": map[string]interface{}{
+				"v": 28,
+				"r": "0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9",
+				"s": "0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709",
+			},
+		}).
+		Reply(http.StatusCreated)
+
+	order := types.Order{
+		OrderHash:               common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
+		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		FeeRecipient:            common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
+		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
+		MakerFee:                   common.Big0,
+		TakerFee:                   common.Big0,
+		MakerTokenAmount:           util.StrToBig("18981000000000000"),
+		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		Signature: types.Signature{
+			V: 28,
+			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
+			S: common.HexToHash("0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709"),
+		},
+	}
+
+	err := suite.client.CreateOrder(context.Background(), order)
+	suite.NoError(err)
+}
+
+func (suite *ClientSuite) TestCreateOrderWithUnsuccessfulResponse() {
+	gock.New(suite.url).
+		Post("/order").
+		Reply(http.StatusServiceUnavailable)
+
+	order := types.Order{
+		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		FeeRecipient:            common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
+		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
+		MakerFee:                   common.Big0,
+		TakerFee:                   common.Big0,
+		MakerTokenAmount:           util.StrToBig("18981000000000000"),
+		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		Signature: types.Signature{
+			V: 28,
+			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
+			S: common.HexToHash("0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709"),
+		},
+	}
+
+	err := suite.client.CreateOrder(context.Background(), order)
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), "erroneous status code")
+	suite.Contains(err.Error(), "503 Service Unavailable")
+}
+
+func (suite *ClientSuite) TestCreateOrderWithContext() {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := suite.client.CreateOrder(ctx, types.Order{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "context canceled")
 }

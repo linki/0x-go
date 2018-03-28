@@ -1,6 +1,7 @@
 package relayer
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -181,4 +182,30 @@ func (c *Client) GetOrder(ctx context.Context, orderHash common.Hash) (types.Ord
 	}
 
 	return order, nil
+}
+
+func (c *Client) CreateOrder(ctx context.Context, order types.Order) error {
+	reqBody, err := order.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, c.url+"/order", bytes.NewReader(reqBody))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req.WithContext(ctx))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("erroneous status code: %s", resp.Status)
+	}
+
+	return nil
 }
