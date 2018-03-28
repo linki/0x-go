@@ -14,10 +14,6 @@ import (
 )
 
 var (
-	orderHash string
-)
-
-var (
 	ordersDescribeCmd = &cobra.Command{
 		Use: "describe",
 		Run: describeOrders,
@@ -25,8 +21,6 @@ var (
 )
 
 func init() {
-	ordersDescribeCmd.Flags().StringVar(&orderHash, "order-hash", "", "")
-
 	ordersCmd.AddCommand(ordersDescribeCmd)
 }
 

@@ -70,9 +70,9 @@ func (suite *TokensPairsSuite) TestTokensPairs() {
 			[]string{"tokens", "pairs"},
 			tt.flags...,
 		)
-
 		rootCmd.SetArgs(args)
-		rootCmd.Execute()
+
+		suite.Require().NoError(rootCmd.Execute())
 
 		output, err := ioutil.ReadAll(suite.console)
 		suite.Require().NoError(err)

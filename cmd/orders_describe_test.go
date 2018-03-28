@@ -89,9 +89,9 @@ s: 0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709
 			[]string{"orders", "describe"},
 			tt.flags...,
 		)
-
 		rootCmd.SetArgs(args)
-		rootCmd.Execute()
+
+		suite.Require().NoError(rootCmd.Execute())
 
 		output, err := ioutil.ReadAll(suite.console)
 		suite.Require().NoError(err)
