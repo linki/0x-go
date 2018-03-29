@@ -209,3 +209,40 @@ func (c *Client) CreateOrder(ctx context.Context, order types.Order) error {
 
 	return nil
 }
+
+func (c *Client) GetFees(ctx context.Context, order types.UnsignedOrder) (types.Fees, error) {
+	reqBody, err := order.MarshalJSON()
+	if err != nil {
+		return types.Fees{}, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, c.url+"/fees", bytes.NewReader(reqBody))
+	if err != nil {
+		return types.Fees{}, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req.WithContext(ctx))
+	if err != nil {
+		return types.Fees{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return types.Fees{}, fmt.Errorf("erroneous status code: %s", resp.Status)
+	}
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return types.Fees{}, err
+	}
+
+	fees := types.Fees{}
+
+	if err := json.Unmarshal(respBody, &fees); err != nil {
+		return types.Fees{}, fmt.Errorf("error parsing json response: %v", err)
+	}
+
+	return fees, nil
+}
