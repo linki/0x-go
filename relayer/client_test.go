@@ -438,6 +438,84 @@ func (suite *ClientSuite) TestCreateOrderWithContext() {
 	suite.Contains(err.Error(), "context canceled")
 }
 
+// POST /fees
+
+func (suite *ClientSuite) TestGetFees() {
+	gock.New(suite.url).
+		Post("/fees").
+		JSON(map[string]interface{}{
+			"exchangeContractAddress":    "0x12459c951127e0c374ff9105dda097662a027093",
+			"maker":                      "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
+			"taker":                      "0x0000000000000000000000000000000000000000",
+			"makerTokenAddress":          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+			"takerTokenAddress":          "0xe41d2489571d322189246dafa5ebde1f4699f498",
+			"makerTokenAmount":           "18981000000000000",
+			"takerTokenAmount":           "19000000000000000000",
+			"expirationUnixTimestampSec": "1518201120",
+			"salt": "58600101225676680041453168589125977076540694791976419610199695339725548478315",
+		}).
+		Reply(http.StatusOK).
+		JSON(map[string]string{
+			"feeRecipient": "0xb046140686d052fff581f63f8136cce132e857da",
+			"makerFee":     "100000000000000",
+			"takerFee":     "200000000000000",
+		})
+
+	order := types.UnsignedOrder{
+		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
+		MakerTokenAmount:           util.StrToBig("18981000000000000"),
+		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+	}
+
+	fees, err := suite.client.GetFees(context.Background(), order)
+	suite.Require().NoError(err)
+
+	expectedFees := types.Fees{
+		FeeRecipient: common.HexToAddress("0xb046140686d052fff581f63f8136cce132e857da"),
+		MakerFee:     util.StrToBig("100000000000000"),
+		TakerFee:     util.StrToBig("200000000000000"),
+	}
+
+	suite.Equal(expectedFees, fees)
+}
+
+func (suite *ClientSuite) TestGetFeesWithUnsuccessfulResponse() {
+	gock.New(suite.url).
+		Post("/fees").
+		Reply(http.StatusServiceUnavailable)
+
+	_, err := suite.client.GetFees(context.Background(), types.UnsignedOrder{})
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), "erroneous status code")
+	suite.Contains(err.Error(), "503 Service Unavailable")
+}
+
+func (suite *ClientSuite) TestGetFeesWithMalformedJSONResponse() {
+	gock.New(suite.url).
+		Post("/fees").
+		Reply(http.StatusOK).
+		BodyString("//\\")
+
+	_, err := suite.client.GetFees(context.Background(), types.UnsignedOrder{})
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), "error parsing json response")
+}
+
+func (suite *ClientSuite) TestGetFeesWithContext() {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := suite.client.GetFees(ctx, types.UnsignedOrder{})
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), "context canceled")
+}
+
 func TestClientSuite(t *testing.T) {
 	suite.Run(t, new(ClientSuite))
 }
