@@ -16,11 +16,11 @@ type OrdersHashSuite struct {
 
 func (suite *OrdersHashSuite) SetupTest() {
 	suite.console = &bytes.Buffer{}
-	ordersHashCmd.SetOutput(suite.console)
+	rootCmd.SetOutput(suite.console)
 }
 
 func (suite *OrdersHashSuite) TearDownTest() {
-	ordersHashCmd.SetOutput(nil)
+	rootCmd.SetOutput(nil)
 }
 
 func (suite *OrdersHashSuite) TestOrdersHash() {

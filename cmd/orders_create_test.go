@@ -21,14 +21,16 @@ type OrdersCreateSuite struct {
 
 func (suite *OrdersCreateSuite) SetupTest() {
 	suite.console = &bytes.Buffer{}
-	ordersCreateCmd.SetOutput(suite.console)
+	rootCmd.SetOutput(suite.console)
 	suite.url = "http://127.0.0.1:8080"
 	suite.keystoreFile = setupTestKeystoreFile(suite.Require())
 }
 
 func (suite *OrdersCreateSuite) TearDownTest() {
 	os.Remove(suite.keystoreFile)
-	ordersCreateCmd.SetOutput(nil)
+	rootCmd.SetOutput(nil)
+	suite.True(gock.IsDone())
+	gock.Off()
 }
 
 func (suite *OrdersCreateSuite) TestOrdersCreate() {

@@ -20,6 +20,7 @@ func (suite *UtilSuite) TestEmptyAddress() {
 
 func (suite *UtilSuite) TestStrToBig() {
 	suite.Equal(big.NewInt(100), StrToBig("100"))
+	suite.Panics(func() { StrToBig("abc") })
 }
 
 func TestUtilSuite(t *testing.T) {

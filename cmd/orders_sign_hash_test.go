@@ -18,13 +18,13 @@ type OrdersSignHashSuite struct {
 
 func (suite *OrdersSignHashSuite) SetupTest() {
 	suite.console = &bytes.Buffer{}
-	ordersSignHashCmd.SetOutput(suite.console)
+	rootCmd.SetOutput(suite.console)
 	suite.keystoreFile = setupTestKeystoreFile(suite.Require())
 }
 
 func (suite *OrdersSignHashSuite) TearDownTest() {
 	os.Remove(suite.keystoreFile)
-	ordersSignHashCmd.SetOutput(nil)
+	rootCmd.SetOutput(nil)
 }
 
 func (suite *OrdersSignHashSuite) TestOrdersSignHash() {
