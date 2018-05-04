@@ -19,19 +19,21 @@ type OrdersFeesSuite struct {
 
 func (suite *OrdersFeesSuite) SetupTest() {
 	suite.console = &bytes.Buffer{}
-	ordersFeesCmd.SetOutput(suite.console)
+	rootCmd.SetOutput(suite.console)
 	suite.url = "http://127.0.0.1:8080"
 }
 
 func (suite *OrdersFeesSuite) TearDownTest() {
-	ordersFeesCmd.SetOutput(nil)
+	rootCmd.SetOutput(nil)
+	suite.True(gock.IsDone())
+	gock.Off()
 }
 
 func (suite *OrdersFeesSuite) TestOrdersFees() {
 	for _, tt := range []struct {
 		response     map[string]string
 		flags        []string
-		expectedBody map[string]interface{}
+		expectedBody map[string]string
 		expected     string
 	}{
 		{
@@ -52,7 +54,7 @@ func (suite *OrdersFeesSuite) TestOrdersFees() {
 				"--salt", "58600101225676680041453168589125977076540694791976419610199695339725548478315",
 				"--relayer-url", suite.url,
 			},
-			map[string]interface{}{
+			map[string]string{
 				"exchangeContractAddress":    "0x12459c951127e0c374ff9105dda097662a027093",
 				"maker":                      "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
 				"taker":                      "0x0000000000000000000000000000000000000000",

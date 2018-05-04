@@ -19,13 +19,12 @@ type OrdersListSuite struct {
 
 func (suite *OrdersListSuite) SetupTest() {
 	suite.console = &bytes.Buffer{}
-	ordersListCmd.SetOutput(suite.console)
-
+	rootCmd.SetOutput(suite.console)
 	suite.url = "http://127.0.0.1:8080"
 }
 
 func (suite *OrdersListSuite) TearDownTest() {
-	ordersListCmd.SetOutput(nil)
+	rootCmd.SetOutput(nil)
 	suite.True(gock.IsDone())
 	gock.Off()
 }

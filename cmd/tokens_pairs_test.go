@@ -19,13 +19,12 @@ type TokensPairsSuite struct {
 
 func (suite *TokensPairsSuite) SetupTest() {
 	suite.console = &bytes.Buffer{}
-	tokensPairsCmd.SetOutput(suite.console)
-
+	rootCmd.SetOutput(suite.console)
 	suite.url = "http://127.0.0.1:8080"
 }
 
 func (suite *TokensPairsSuite) TearDownTest() {
-	tokensPairsCmd.SetOutput(nil)
+	rootCmd.SetOutput(nil)
 	suite.True(gock.IsDone())
 	gock.Off()
 }

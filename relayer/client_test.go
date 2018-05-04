@@ -276,7 +276,7 @@ func (suite *ClientSuite) TestGetOrder() {
 			},
 		})
 
-	order := types.Order{
+	expectedOrder := types.Order{
 		OrderHash:               common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
 		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
 		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
@@ -300,7 +300,7 @@ func (suite *ClientSuite) TestGetOrder() {
 	order, err := suite.client.GetOrder(context.Background(), common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"))
 	suite.NoError(err)
 
-	suite.Equal(order, order)
+	suite.Equal(expectedOrder, order)
 }
 
 func (suite *ClientSuite) TestGetOrderOrderNotFound() {
