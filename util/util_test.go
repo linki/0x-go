@@ -22,6 +22,18 @@ func (suite *UtilSuite) TestStrToBig() {
 	suite.Equal(big.NewInt(100), StrToBig("100"))
 }
 
+func (suite *UtilSuite) TestEthToWei() {
+	for _, tc := range []struct {
+		eth int64
+		wei *big.Int
+	}{
+		{0, common.Big0},
+		{1, big.NewInt(1000000000000000000)},
+	} {
+		suite.Equal(tc.wei, EthToWei(tc.eth))
+	}
+}
+
 func TestUtilSuite(t *testing.T) {
 	suite.Run(t, new(UtilSuite))
 }
