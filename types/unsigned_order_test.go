@@ -32,7 +32,7 @@ func (suite *UnsignedOrderSuite) TestMarshal() {
 					Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 					MakerTokenAmount:           util.StrToBig("18981000000000000"),
 					TakerTokenAmount:           util.StrToBig("19000000000000000000"),
-					ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+					ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
 				},
 			},
 			[]map[string]string{

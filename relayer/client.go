@@ -12,13 +12,15 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/linki/0x-go/contracts/protocol"
 	"github.com/linki/0x-go/types"
 	"github.com/linki/0x-go/util"
 )
 
 type Client struct {
-	url    string
-	client *http.Client
+	url              string
+	client           *http.Client
+	exchangeContract *protocol.Exchange
 }
 
 func NewClient(url string) *Client {
