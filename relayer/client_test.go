@@ -172,7 +172,7 @@ func (suite *ClientSuite) TestGetOrders() {
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
-		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
 		Signature: types.Signature{
 			V: 28,
 			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
@@ -289,7 +289,7 @@ func (suite *ClientSuite) TestGetOrder() {
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
-		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
 		Signature: types.Signature{
 			V: 28,
 			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
@@ -386,7 +386,7 @@ func (suite *ClientSuite) TestCreateOrder() {
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
-		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
 		Signature: types.Signature{
 			V: 28,
 			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
@@ -415,7 +415,7 @@ func (suite *ClientSuite) TestCreateOrderWithUnsuccessfulResponse() {
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
-		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
 		Signature: types.Signature{
 			V: 28,
 			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
@@ -470,7 +470,7 @@ func (suite *ClientSuite) TestGetFees() {
 		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
-		ExpirationUnixTimestampSec: time.Unix(1518201120, 0),
+		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
 	}
 
 	fees, err := suite.client.GetFees(context.Background(), order)

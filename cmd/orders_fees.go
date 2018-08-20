@@ -36,7 +36,7 @@ func getFees(cmd *cobra.Command, _ []string) {
 		TakerTokenAddress:          common.HexToAddress(takerTokenAddress),
 		MakerTokenAmount:           util.StrToBig(makerTokenAmount),
 		TakerTokenAmount:           util.StrToBig(takerTokenAmount),
-		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0),
+		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0).UTC(),
 		Salt: util.StrToBig(salt),
 	}
 

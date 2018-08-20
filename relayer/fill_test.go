@@ -1,10 +1,11 @@
 package relayer
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"math/big"
+	"net/http"
 	"testing"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/linki/0x-go/contracts/protocol"
 	"github.com/linki/0x-go/contracts/tokens"
-	"github.com/linki/0x-go/types"
 	"github.com/linki/0x-go/util"
 
 	"github.com/h2non/gock"
@@ -24,6 +24,8 @@ import (
 
 type ClientFillSuite struct {
 	suite.Suite
+	client *Client
+	url    string
 
 	backend    *backends.SimulatedBackend
 	masterAuth *bind.TransactOpts
@@ -43,9 +45,9 @@ func (suite *ClientFillSuite) SetupTest() {
 	var err error
 
 	// setup a master, maker and taker account.
-	suite.masterAuth, _ = suite.newAccount()
-	suite.makerAuth, suite.makerKey = suite.newAccount()
-	suite.takerAuth, _ = suite.newAccount()
+	suite.masterAuth, _ = suite.newAccountFromHex("f5f7b32d9fa2d52b22ec3cd8aed0298ac6ebccbd54b340f870c734161fc7efbc")
+	suite.makerAuth, suite.makerKey = suite.newAccountFromHex("c5010f1aaa410683399ea6bc85044360545917e7d61279681fd506cedc81bc23")
+	suite.takerAuth, _ = suite.newAccountFromHex("acfb7e627bead064eac670aa6d9ee28ea3b876980808c79d3aac6881447b66ae")
 
 	// initialize the system, give everyone 200 ETH.
 	suite.backend = backends.NewSimulatedBackend(
@@ -105,59 +107,47 @@ func (suite *ClientFillSuite) SetupTest() {
 	// ensure that taker has 50 ZRX and 50 WETH.
 	suite.Require().Equal(util.EthToWei(50), suite.getTokenBalance(suite.takerAuth, suite.wethToken))
 	suite.Require().Equal(util.EthToWei(50), suite.getTokenBalance(suite.takerAuth, suite.zrxToken))
+
+	suite.url = "http://127.0.0.1:8080"
+	suite.client = NewClient(suite.url)
+	suite.client.exchangeContract = suite.exchangeContract
+}
+
+func (suite *ClientFillSuite) TearDownTest() {
+	suite.True(gock.IsDone())
+	gock.Off()
 }
 
 func (suite *ClientFillSuite) TestFillOrder() {
-	// create an order where the maker sells ZRX for WETH.
-	order := types.Order{
-		Maker:                   suite.makerAuth.From,
-		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
-		FeeRecipient:            suite.masterAuth.From,
-		MakerTokenAddress:       suite.zrxAddress,
-		TakerTokenAddress:       suite.wethAddress,
-		ExchangeContractAddress: suite.exchangeAddress,
-		Salt:                       big.NewInt(42),
-		MakerFee:                   common.Big0,
-		TakerFee:                   common.Big0,
-		MakerTokenAmount:           util.EthToWei(20), // 20 ZRX
-		TakerTokenAmount:           util.EthToWei(10), // 10 WETH
-		ExpirationUnixTimestampSec: time.Date(2018, 2, 8, 18, 0, 0, 0, time.UTC),
-	}
+	gock.New(suite.url).
+		Get("/order/0x9e4ecffa4c7da98177505139b5411d87bc62637a4a9c64a8c87d924b45669f09").
+		Reply(http.StatusOK).
+		JSON(map[string]interface{}{
+			"orderHash":                  "0x9e4ecffa4c7da98177505139b5411d87bc62637a4a9c64a8c87d924b45669f09",
+			"exchangeContractAddress":    suite.exchangeAddress,
+			"maker":                      "0xeF5cd3E1F525f899f1d383920209cC890fF7CF95",
+			"taker":                      "0x0000000000000000000000000000000000000000",
+			"makerTokenAddress":          suite.zrxAddress,
+			"takerTokenAddress":          suite.wethAddress,
+			"feeRecipient":               "0xD714dDDCaf8fCB719E3310E39c0A1824daA2BED0",
+			"makerTokenAmount":           "20000000000000000000",
+			"takerTokenAmount":           "10000000000000000000",
+			"makerFee":                   "0",
+			"takerFee":                   "0",
+			"expirationUnixTimestampSec": "1518112800",
+			"salt": "42",
+			"ecSignature": map[string]interface{}{
+				"v": 27,
+				"r": "0x57dd2e211aefdee2ffe8dbae676fe3804b61bc2418678226262963fe8e61f954",
+				"s": "0x7165cfa75eff1eaf8427e68c1d0be91142f03aacad736ad093baa061396bc3ef",
+			},
+		})
 
-	// calculate the order hash.
-	order.OrderHash = order.CalculateOrderHash()
+	order, err := suite.client.GetOrder(context.Background(), common.HexToHash("0x9e4ecffa4c7da98177505139b5411d87bc62637a4a9c64a8c87d924b45669f09"))
+	suite.NoError(err)
 
-	// sign the order hash.
-	signature, err := types.SignHash(order.OrderHash, suite.makerKey)
-	suite.Require().NoError(err)
-
-	// attach the signature to the order.
-	order.Signature = signature
-
-	// call the `FillOrder` function on the exchange contract.
-	_, err = suite.exchangeContract.FillOrder(suite.takerAuth,
-		[5]common.Address{
-			order.Maker,
-			order.Taker,
-			order.MakerTokenAddress,
-			order.TakerTokenAddress,
-			order.FeeRecipient,
-		},
-		[6]*big.Int{
-			order.MakerTokenAmount,
-			order.TakerTokenAmount,
-			order.MakerFee,
-			order.TakerFee,
-			big.NewInt(order.ExpirationUnixTimestampSec.Unix()),
-			order.Salt,
-		},
-		util.EthToWei(1), // taker fills 1 WETH for 2 ZRX
-		true,
-		order.Signature.V,
-		order.Signature.R,
-		order.Signature.S,
-	)
-	suite.Require().NoError(err)
+	err = suite.client.FillOrder(context.Background(), suite.takerAuth, order, util.EthToWei(1)) // taker fills 1 WETH for 2 ZRX
+	suite.NoError(err)
 
 	// commit all of the above.
 	suite.backend.Commit()
@@ -169,11 +159,6 @@ func (suite *ClientFillSuite) TestFillOrder() {
 	// ensure that taker has 1 WETH less and 2 ZRX more.
 	suite.Equal(util.EthToWei(49), suite.getTokenBalance(suite.takerAuth, suite.wethToken))
 	suite.Equal(util.EthToWei(52), suite.getTokenBalance(suite.takerAuth, suite.zrxToken))
-}
-
-func (suite *ClientFillSuite) TearDownTest() {
-	suite.True(gock.IsDone())
-	gock.Off()
 }
 
 // Token is a common interface for all ERC20 tokens.
@@ -212,6 +197,12 @@ func (suite *ClientFillSuite) getTokenBalance(auth *bind.TransactOpts, token Tok
 // newAccount creates a new random ethereum account.
 func (suite *ClientFillSuite) newAccount() (*bind.TransactOpts, *ecdsa.PrivateKey) {
 	key, err := crypto.GenerateKey()
+	suite.Require().NoError(err)
+	return bind.NewKeyedTransactor(key), key
+}
+
+func (suite *ClientFillSuite) newAccountFromHex(hex string) (*bind.TransactOpts, *ecdsa.PrivateKey) {
+	key, err := crypto.HexToECDSA(hex)
 	suite.Require().NoError(err)
 	return bind.NewKeyedTransactor(key), key
 }

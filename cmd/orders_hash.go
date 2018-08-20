@@ -35,7 +35,7 @@ func hashOrder(cmd *cobra.Command, _ []string) {
 		TakerTokenAmount:           util.StrToBig(takerTokenAmount),
 		MakerFee:                   util.StrToBig(makerFee),
 		TakerFee:                   util.StrToBig(takerFee),
-		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0),
+		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0).UTC(),
 		Salt: util.StrToBig(salt),
 	}
 

@@ -85,7 +85,7 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	o.ExpirationUnixTimestampSec = time.Unix(timestamp, 0)
+	o.ExpirationUnixTimestampSec = time.Unix(timestamp, 0).UTC()
 
 	// When the JSON doesn't contain an order hash, we calculate it ourself.
 	if order["orderHash"] != nil {
