@@ -55,7 +55,7 @@ func (suite *ClientFillSuite) SetupTest() {
 			suite.masterAuth.From: {Balance: util.EthToWei(200)},
 			suite.makerAuth.From:  {Balance: util.EthToWei(200)},
 			suite.takerAuth.From:  {Balance: util.EthToWei(200)},
-		},
+		}, 10000000,
 	)
 
 	// deploy the ZRX token contract.
