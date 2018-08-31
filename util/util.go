@@ -7,7 +7,7 @@ import (
 )
 
 func EmptyAddress(a common.Address) bool {
-	return common.EmptyHash(a.Hash())
+	return a.Hash() == common.Hash{}
 }
 
 func StrToBig(str string) *big.Int {
