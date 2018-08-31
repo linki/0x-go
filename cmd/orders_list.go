@@ -8,7 +8,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
 
+	"github.com/linki/0x-go/registry"
 	"github.com/linki/0x-go/relayer"
+	"github.com/linki/0x-go/types"
 )
 
 var (
@@ -48,6 +50,18 @@ func listOrders(cmd *cobra.Command, _ []string) {
 	}
 
 	for _, o := range orders {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s\n", o.OrderHash.Hex())
+		makerToken := registry.Lookup(o.MakerTokenAddress.Hex())
+		takerToken := registry.Lookup(o.TakerTokenAddress.Hex())
+
+		fmt.Fprintf(cmd.OutOrStdout(), "%s %.6f %s %.6f %s %.6f %s/%s\n",
+			o.OrderHash.Hex(),
+			takerToken.NormalizedValue(o.TakerTokenAmount),
+			takerToken.Symbol,
+			makerToken.NormalizedValue(o.MakerTokenAmount),
+			makerToken.Symbol,
+			types.Price(takerToken.NormalizedValue(o.TakerTokenAmount), makerToken.NormalizedValue(o.MakerTokenAmount)),
+			takerToken.Symbol,
+			makerToken.Symbol,
+		)
 	}
 }
