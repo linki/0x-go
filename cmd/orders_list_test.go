@@ -63,7 +63,7 @@ func (suite *OrdersListSuite) TestOrdersList() {
 				"--relayer-url", suite.url,
 			},
 			map[string]string{},
-			"0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942\n",
+			"0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942 19.000000 ZRX 0.018981 WETH2 0.000999 ZRX/WETH2\n",
 		},
 		{
 			[]map[string]interface{}{
@@ -109,7 +109,7 @@ func (suite *OrdersListSuite) TestOrdersList() {
 				"trader":                  "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
 				"feeRecipient":            "0xa258b39954cef5cb142fd567a46cddb31a670124",
 			},
-			"0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942\n",
+			"0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942 19.000000 ZRX 0.018981 WETH2 0.000999 ZRX/WETH2\n",
 		},
 	} {
 		gock.New(suite.url).
