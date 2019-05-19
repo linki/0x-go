@@ -14,8 +14,8 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/linki/0x-go/contracts/protocol"
-	"github.com/linki/0x-go/contracts/tokens"
+	"github.com/linki/0x-go/contracts/v1/protocol"
+	"github.com/linki/0x-go/contracts/v1/tokens"
 	"github.com/linki/0x-go/util"
 
 	"github.com/h2non/gock"
