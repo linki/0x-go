@@ -15,6 +15,7 @@ var (
 	exchangeContractAddress    string
 	makerTokenAddress          string
 	takerTokenAddress          string
+	sender                     string
 	maker                      string
 	taker                      string
 	feeRecipient               string
@@ -39,6 +40,7 @@ var (
 func init() {
 	ordersCmd.PersistentFlags().StringVar(&orderHash, "order-hash", "", "")
 	ordersCmd.PersistentFlags().StringVar(&exchangeContractAddress, "exchange-contract-address", "", "")
+	ordersCmd.PersistentFlags().StringVar(&sender, "sender", "", "")
 	ordersCmd.PersistentFlags().StringVar(&maker, "maker", "", "")
 	ordersCmd.PersistentFlags().StringVar(&taker, "taker", "", "")
 	ordersCmd.PersistentFlags().StringVar(&makerTokenAddress, "maker-token-address", "", "")

@@ -33,39 +33,36 @@ func describeOrders(cmd *cobra.Command, _ []string) {
 	}
 
 	orderFmt := `orderHash: %s
-exchange-contract-address: %s
-maker: %s
-taker: %s
-maker-token-address: %s
-taker-token-address: %s
-fee-recipient: %s
-maker-token-amount: %s
-taker-token-amount: %s
-maker-fee: %s
-taker-fee: %s
-expiration-unix-timestamp-sec: %d
+exchangeAddress: %s
+senderAddress: %s
+makerAddress: %s
+takerAddress: %s
+makerAssetData: %s
+takerAssetData: %s
+feeRecipientAddress: %s
+makerAssetAmount: %s
+takerAssetAmount: %s
+makerFee: %s
+takerFee: %s
+expirationTimeSeconds: %d
+signature: %s
 salt: %s
-v: %d
-r: %s
-s: %s
 `
-
 	fmt.Fprintf(cmd.OutOrStdout(), orderFmt,
 		order.OrderHash.Hex(),
 		strings.ToLower(order.ExchangeContractAddress.Hex()),
+		strings.ToLower(order.Sender.Hex()),
 		strings.ToLower(order.Maker.Hex()),
 		strings.ToLower(order.Taker.Hex()),
-		strings.ToLower(order.MakerTokenAddress.Hex()),
-		strings.ToLower(order.TakerTokenAddress.Hex()),
+		fmt.Sprintf("%s%s", "0xf47261b0", strings.ToLower(order.MakerTokenAddress.Hash().String())[2:]),
+		fmt.Sprintf("%s%s", "0xf47261b0", strings.ToLower(order.TakerTokenAddress.Hash().String())[2:]),
 		strings.ToLower(order.FeeRecipient.Hex()),
 		order.MakerTokenAmount,
 		order.TakerTokenAmount,
 		order.MakerFee,
 		order.TakerFee,
 		order.ExpirationUnixTimestampSec.Unix(),
+		order.Signature,
 		order.Salt,
-		order.Signature.V,
-		order.Signature.R.Hex(),
-		order.Signature.S.Hex(),
 	)
 }

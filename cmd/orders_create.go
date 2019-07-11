@@ -33,7 +33,7 @@ func createOrder(cmd *cobra.Command, _ []string) {
 
 	if autodetectFees {
 		quoteOrder := types.UnsignedOrder{
-			ExchangeContractAddress: common.HexToAddress(exchangeContractAddress),
+			ExchangeContractAddress:    common.HexToAddress(exchangeContractAddress),
 			Maker:                      common.HexToAddress(maker),
 			Taker:                      common.HexToAddress(taker),
 			MakerTokenAddress:          common.HexToAddress(makerTokenAddress),
@@ -41,7 +41,7 @@ func createOrder(cmd *cobra.Command, _ []string) {
 			MakerTokenAmount:           util.StrToBig(makerTokenAmount),
 			TakerTokenAmount:           util.StrToBig(takerTokenAmount),
 			ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0),
-			Salt: util.StrToBig(salt),
+			Salt:                       util.StrToBig(salt),
 		}
 
 		detectedFees, err := client.GetFees(context.Background(), quoteOrder)
@@ -58,7 +58,7 @@ func createOrder(cmd *cobra.Command, _ []string) {
 	}
 
 	order := types.Order{
-		ExchangeContractAddress: common.HexToAddress(exchangeContractAddress),
+		ExchangeContractAddress:    common.HexToAddress(exchangeContractAddress),
 		Maker:                      common.HexToAddress(maker),
 		Taker:                      common.HexToAddress(taker),
 		MakerTokenAddress:          common.HexToAddress(makerTokenAddress),
@@ -66,7 +66,7 @@ func createOrder(cmd *cobra.Command, _ []string) {
 		MakerTokenAmount:           util.StrToBig(makerTokenAmount),
 		TakerTokenAmount:           util.StrToBig(takerTokenAmount),
 		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0).UTC(),
-		Salt: util.StrToBig(salt),
+		Salt:                       util.StrToBig(salt),
 	}
 	order.FeeRecipient = fees.FeeRecipient
 	order.MakerFee = fees.MakerFee

@@ -12,7 +12,7 @@ type RegistrySuite struct {
 	suite.Suite
 }
 
-func (suite *RegistrySuite) TestTokenRegistry() {
+func (suite *RegistrySuite) TestAssetRegistry() {
 	for _, tt := range []struct {
 		address string
 		symbol  string
@@ -73,28 +73,28 @@ func (suite *RegistrySuite) TestTokenRegistry() {
 		{"0x56ba2ee7890461f463f7be02aac3099f6d5811a8", "CAT", 18},
 	} {
 		suite.Require().Contains(Registry, tt.address, "registry doesn't contain '%s'", tt.address)
-		suite.Equal(tt.symbol, Registry[tt.address], "address '%s' has unexpected token symbol '%s', expected '%s'", tt.address, Registry[tt.address], tt.symbol)
-		suite.Equal(tt.digits, Digits[tt.address], "address '%s' (token '%s') has unexpected digits '%d', expected '%d'", tt.address, Registry[tt.address], Digits[tt.address], tt.digits)
+		suite.Equal(tt.symbol, Registry[tt.address], "address '%s' has unexpected asset symbol '%s', expected '%s'", tt.address, Registry[tt.address], tt.symbol)
+		suite.Equal(tt.digits, Digits[tt.address], "address '%s' (asset '%s') has unexpected digits '%d', expected '%d'", tt.address, Registry[tt.address], Digits[tt.address], tt.digits)
 
-		token, ok := TokenRegistry[tt.address]
+		asset, ok := AssetRegistry[tt.address]
 
 		suite.Require().True(ok, "registry doesn't contain '%s'", tt.address)
-		suite.Equal(tt.address, token.Address, "referencing address '%s' doesn't match token's address '%s'", tt.address, token.Address)
-		suite.Equal(tt.symbol, token.Symbol, "address '%s' has unexpected token symbol '%s', expected '%s'", tt.address, token.Symbol, tt.symbol)
-		suite.Equal(tt.digits, token.Digits, "address '%s' (token '%s') has unexpected digits '%d', expected '%d'", tt.address, token.Symbol, token.Digits, tt.digits)
+		suite.Equal(tt.address, asset.AssetData, "referencing address '%s' doesn't match asset's address '%s'", tt.address, asset.AssetData)
+		suite.Equal(tt.symbol, asset.Symbol, "address '%s' has unexpected asset symbol '%s', expected '%s'", tt.address, asset.Symbol, tt.symbol)
+		suite.Equal(tt.digits, asset.Digits, "address '%s' (asset '%s') has unexpected digits '%d', expected '%d'", tt.address, asset.Symbol, asset.Digits, tt.digits)
 	}
 }
 
 func (suite *RegistrySuite) TestLookup() {
 	for _, tt := range []struct {
 		address string
-		token   types.Token
+		asset   types.Asset
 	}{
-		{"0x2956356cd2a2bf3202f771f50d3d14a367b48070", TokenRegistry["0x2956356cd2a2bf3202f771f50d3d14a367b48070"]}, // lower normal
-		{"0x2956356cD2a2bf3202F771F50D3D14A367b48070", TokenRegistry["0x2956356cd2a2bf3202f771f50d3d14a367b48070"]}, // mixed case
-		{"unknown address", types.UnknownToken},                                                                     // unknown token
+		{"0x2956356cd2a2bf3202f771f50d3d14a367b48070", AssetRegistry["0x2956356cd2a2bf3202f771f50d3d14a367b48070"]}, // lower normal
+		{"0x2956356cD2a2bf3202F771F50D3D14A367b48070", AssetRegistry["0x2956356cd2a2bf3202f771f50d3d14a367b48070"]}, // mixed case
+		{"unknown address", types.UnknownAsset}, // unknown asset
 	} {
-		suite.Equal(tt.token, Lookup(tt.address))
+		suite.Equal(tt.asset, Lookup(tt.address))
 	}
 }
 

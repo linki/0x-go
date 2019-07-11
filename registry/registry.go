@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	TokenRegistry = map[string]types.Token{}
+	AssetRegistry = map[string]types.Asset{}
 
 	Registry = map[string]string{
 		"0xe41d2489571d322189246dafa5ebde1f4699f498": "ZRX",
@@ -124,18 +124,18 @@ var (
 
 func init() {
 	for address := range Registry {
-		TokenRegistry[address] = types.Token{
-			Address: address,
-			Symbol:  Registry[address],
-			Digits:  Digits[address],
+		AssetRegistry[address] = types.Asset{
+			AssetData: address,
+			Symbol:    Registry[address],
+			Digits:    Digits[address],
 		}
 	}
 }
 
-func Lookup(address string) types.Token {
-	if token, ok := TokenRegistry[strings.ToLower(address)]; ok {
-		return token
+func Lookup(address string) types.Asset {
+	if asset, ok := AssetRegistry[strings.ToLower(address)]; ok {
+		return asset
 	}
 
-	return types.UnknownToken
+	return types.UnknownAsset
 }
