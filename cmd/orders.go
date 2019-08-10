@@ -26,9 +26,8 @@ var (
 	expirationUnixTimestampSec int64
 	salt                       string
 
-	keystoreFile   string
-	passphrase     string
-	autodetectFees bool
+	keystoreFile string
+	passphrase   string
 )
 
 var (
@@ -55,7 +54,6 @@ func init() {
 
 	ordersCmd.PersistentFlags().StringVar(&keystoreFile, "keystore-file", "", "")
 	ordersCmd.PersistentFlags().StringVar(&passphrase, "passphrase", "", "")
-	ordersCmd.PersistentFlags().BoolVar(&autodetectFees, "autodetect-fees", false, "")
 
 	rootCmd.AddCommand(ordersCmd)
 }

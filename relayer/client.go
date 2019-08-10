@@ -112,9 +112,9 @@ func (c *Client) GetOrders(ctx context.Context, opts GetOrdersOpts) ([]types.Ord
 	if !util.EmptyAddress(opts.Maker) {
 		query["maker"] = []string{strings.ToLower(opts.Maker.Hex())}
 	}
-	if !util.EmptyAddress(opts.Taker) {
-		query["taker"] = []string{strings.ToLower(opts.Taker.Hex())}
-	}
+
+	query["taker"] = []string{strings.ToLower(opts.Taker.Hex())}
+
 	if !util.EmptyAddress(opts.Trader) {
 		query["trader"] = []string{strings.ToLower(opts.Trader.Hex())}
 	}
@@ -187,8 +187,7 @@ func (c *Client) GetOrder(ctx context.Context, orderHash common.Hash) (types.Ord
 }
 
 func (c *Client) CreateOrder(ctx context.Context, order types.Order) error {
-	// reqBody, err := order.MarshalJSON()
-	reqBody, err := order.MarshalJSONPlain()
+	reqBody, err := order.MarshalJSONOrderData()
 	if err != nil {
 		return err
 	}

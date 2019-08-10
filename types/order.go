@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+
 	"golang.org/x/crypto/sha3"
 )
 
@@ -111,13 +112,6 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 	o.Signature = orderData["signature"].(string)
 	o.Salt.UnmarshalJSON([]byte(orderData["salt"].(string)))
 
-	// sig := orderData["ecSignature"].(map[string]interface{})
-	// o.Signature = Signature{
-	// 	V: byte(sig["v"].(float64)),
-	// 	R: common.HexToHash(sig["r"].(string)),
-	// 	S: common.HexToHash(sig["s"].(string)),
-	// }
-
 	timestamp, err := strconv.ParseInt(orderData["expirationTimeSeconds"].(string), 10, 64)
 	if err != nil {
 		return err
@@ -137,22 +131,7 @@ func (o *Order) UnmarshalJSON(b []byte) error {
 
 func (o *Order) MarshalJSON() ([]byte, error) {
 	order := map[string]map[string]string{
-		"order": {
-			"exchangeAddress":       strings.ToLower(o.ExchangeContractAddress.Hex()),
-			"senderAddress":         strings.ToLower(o.Sender.Hex()),
-			"makerAddress":          strings.ToLower(o.Maker.Hex()),
-			"takerAddress":          strings.ToLower(o.Taker.Hex()),
-			"makerAssetData":        fmt.Sprintf("%s%s", "0xf47261b0", strings.ToLower(o.MakerTokenAddress.Hash().String())[2:]),
-			"takerAssetData":        fmt.Sprintf("%s%s", "0xf47261b0", strings.ToLower(o.TakerTokenAddress.Hash().String())[2:]),
-			"feeRecipientAddress":   strings.ToLower(o.FeeRecipient.Hex()),
-			"makerAssetAmount":      o.MakerTokenAmount.String(),
-			"takerAssetAmount":      o.TakerTokenAmount.String(),
-			"makerFee":              o.MakerFee.String(),
-			"takerFee":              o.TakerFee.String(),
-			"expirationTimeSeconds": fmt.Sprintf("%d", o.ExpirationUnixTimestampSec.Unix()),
-			"signature":             o.Signature,
-			"salt":                  o.Salt.String(),
-		},
+		"order": o.orderData(),
 		"metaData": {
 			"orderHash": o.OrderHash.Hex(),
 		},
@@ -160,8 +139,13 @@ func (o *Order) MarshalJSON() ([]byte, error) {
 	return json.Marshal(order)
 }
 
-func (o *Order) MarshalJSONPlain() ([]byte, error) {
-	order := map[string]string{
+func (o *Order) MarshalJSONOrderData() ([]byte, error) {
+	orderData := o.orderData()
+	return json.Marshal(orderData)
+}
+
+func (o *Order) orderData() map[string]string {
+	return map[string]string{
 		"exchangeAddress":       strings.ToLower(o.ExchangeContractAddress.Hex()),
 		"senderAddress":         strings.ToLower(o.Sender.Hex()),
 		"makerAddress":          strings.ToLower(o.Maker.Hex()),
@@ -177,5 +161,4 @@ func (o *Order) MarshalJSONPlain() ([]byte, error) {
 		"signature":             o.Signature,
 		"salt":                  o.Salt.String(),
 	}
-	return json.Marshal(order)
 }
