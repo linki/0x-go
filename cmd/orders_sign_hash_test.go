@@ -38,10 +38,7 @@ func (suite *OrdersSignHashSuite) TestOrdersSignHash() {
 				"--keystore-file", suite.keystoreFile,
 				"--passphrase", "not-secure-do-not-use-me-for-anything-else",
 			},
-			`v: 28
-r: 0x38c4e69b77f5e85e577337b2738fb27ddffa640a9b90971c260a4618c41bc4b2
-s: 0x12a308633603f6575bd73495d4cffd37d61ddc788b96ebe4a03b8c499a559d32
-`,
+			"0x1b6efe8313a7aa5a06ee95e41029b7e53ba667abb8ebce84de68ae87c972a2d11c74fddf58bf162b39703916db9f5afbb9a70c8b6f21c8b5018be884b815997ed002\n",
 		},
 	} {
 		args := append(

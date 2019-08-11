@@ -29,48 +29,20 @@ func init() {
 func createOrder(cmd *cobra.Command, _ []string) {
 	client := relayer.NewClient(relayerURL)
 
-	fees := types.Fees{}
-
-	if autodetectFees {
-		quoteOrder := types.UnsignedOrder{
-			ExchangeContractAddress: common.HexToAddress(exchangeContractAddress),
-			Maker:                      common.HexToAddress(maker),
-			Taker:                      common.HexToAddress(taker),
-			MakerTokenAddress:          common.HexToAddress(makerTokenAddress),
-			TakerTokenAddress:          common.HexToAddress(takerTokenAddress),
-			MakerTokenAmount:           util.StrToBig(makerTokenAmount),
-			TakerTokenAmount:           util.StrToBig(takerTokenAmount),
-			ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0),
-			Salt: util.StrToBig(salt),
-		}
-
-		detectedFees, err := client.GetFees(context.Background(), quoteOrder)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fees = detectedFees
-	} else {
-		fees = types.Fees{
-			FeeRecipient: common.HexToAddress(feeRecipient),
-			MakerFee:     util.StrToBig(makerFee),
-			TakerFee:     util.StrToBig(takerFee),
-		}
-	}
-
 	order := types.Order{
-		ExchangeContractAddress: common.HexToAddress(exchangeContractAddress),
+		ExchangeContractAddress:    common.HexToAddress(exchangeContractAddress),
 		Maker:                      common.HexToAddress(maker),
 		Taker:                      common.HexToAddress(taker),
 		MakerTokenAddress:          common.HexToAddress(makerTokenAddress),
 		TakerTokenAddress:          common.HexToAddress(takerTokenAddress),
+		FeeRecipient:               common.HexToAddress(feeRecipient),
 		MakerTokenAmount:           util.StrToBig(makerTokenAmount),
 		TakerTokenAmount:           util.StrToBig(takerTokenAmount),
+		MakerFee:                   util.StrToBig(makerFee),
+		TakerFee:                   util.StrToBig(takerFee),
 		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0).UTC(),
-		Salt: util.StrToBig(salt),
+		Salt:                       util.StrToBig(salt),
 	}
-	order.FeeRecipient = fees.FeeRecipient
-	order.MakerFee = fees.MakerFee
-	order.TakerFee = fees.TakerFee
 
 	order.OrderHash = order.CalculateOrderHash()
 

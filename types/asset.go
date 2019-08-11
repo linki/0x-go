@@ -5,24 +5,25 @@ import (
 	"math/big"
 )
 
-type Token struct {
-	Address   string
+type Asset struct {
+	AssetData string
 	MinAmount string
 	MaxAmount string
 	Precision int
-	Symbol    string
-	Digits    int
+
+	Symbol string
+	Digits int
 }
 
 var (
-	UnknownToken = Token{Symbol: "UNKNOWN"}
+	UnknownAsset = Asset{Symbol: "UNKNOWN"}
 )
 
 func Price(base, quote *big.Float) *big.Float {
 	return new(big.Float).Quo(quote, base)
 }
 
-func (t Token) NormalizedValue(amount *big.Int) *big.Float {
+func (t Asset) NormalizedValue(amount *big.Int) *big.Float {
 	divisor := big.NewFloat(math.Pow10(t.Digits))
 	return new(big.Float).Quo(new(big.Float).SetInt(amount), divisor)
 }

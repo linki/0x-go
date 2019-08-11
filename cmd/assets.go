@@ -5,11 +5,11 @@ import (
 )
 
 var (
-	tokensCmd = &cobra.Command{
-		Use: "tokens",
+	assetsCmd = &cobra.Command{
+		Use: "assets",
 	}
 )
 
 func init() {
-	rootCmd.AddCommand(tokensCmd)
+	rootCmd.AddCommand(assetsCmd)
 }

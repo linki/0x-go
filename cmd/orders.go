@@ -15,6 +15,7 @@ var (
 	exchangeContractAddress    string
 	makerTokenAddress          string
 	takerTokenAddress          string
+	sender                     string
 	maker                      string
 	taker                      string
 	feeRecipient               string
@@ -25,9 +26,8 @@ var (
 	expirationUnixTimestampSec int64
 	salt                       string
 
-	keystoreFile   string
-	passphrase     string
-	autodetectFees bool
+	keystoreFile string
+	passphrase   string
 )
 
 var (
@@ -39,6 +39,7 @@ var (
 func init() {
 	ordersCmd.PersistentFlags().StringVar(&orderHash, "order-hash", "", "")
 	ordersCmd.PersistentFlags().StringVar(&exchangeContractAddress, "exchange-contract-address", "", "")
+	ordersCmd.PersistentFlags().StringVar(&sender, "sender", "", "")
 	ordersCmd.PersistentFlags().StringVar(&maker, "maker", "", "")
 	ordersCmd.PersistentFlags().StringVar(&taker, "taker", "", "")
 	ordersCmd.PersistentFlags().StringVar(&makerTokenAddress, "maker-token-address", "", "")
@@ -53,7 +54,6 @@ func init() {
 
 	ordersCmd.PersistentFlags().StringVar(&keystoreFile, "keystore-file", "", "")
 	ordersCmd.PersistentFlags().StringVar(&passphrase, "passphrase", "", "")
-	ordersCmd.PersistentFlags().BoolVar(&autodetectFees, "autodetect-fees", false, "")
 
 	rootCmd.AddCommand(ordersCmd)
 }

@@ -33,5 +33,5 @@ func signOrderHash(cmd *cobra.Command, _ []string) {
 		log.Fatalf("Failed to calculate the order's signature: %v", err)
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "v: %d\nr: %s\ns: %s\n", signature.V, signature.R.Hex(), signature.S.Hex())
+	fmt.Fprintf(cmd.OutOrStdout(), "%s\n", signature)
 }

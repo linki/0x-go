@@ -30,23 +30,23 @@ func NewClient(url string) *Client {
 	}
 }
 
-type GetTokenPairsOpts struct {
-	TokenA common.Address
-	TokenB common.Address
+type GetAssetPairsOpts struct {
+	AssetDataA string
+	AssetDataB string
 }
 
-func (c *Client) GetTokenPairs(ctx context.Context, opts GetTokenPairsOpts) ([]types.TokenPair, error) {
-	reqURL, err := url.Parse(c.url + "/token_pairs")
+func (c *Client) GetAssetPairs(ctx context.Context, opts GetAssetPairsOpts) (*types.AssetPairs, error) {
+	reqURL, err := url.Parse(c.url + "/asset_pairs")
 	if err != nil {
 		return nil, err
 	}
 
 	query := url.Values{}
-	if !util.EmptyAddress(opts.TokenA) {
-		query["tokenA"] = []string{strings.ToLower(opts.TokenA.Hex())}
+	if !util.EmptyAddress(common.HexToAddress(opts.AssetDataA)) {
+		query["assetDataA"] = []string{strings.ToLower(opts.AssetDataA)}
 	}
-	if !util.EmptyAddress(opts.TokenB) {
-		query["tokenB"] = []string{strings.ToLower(opts.TokenB.Hex())}
+	if !util.EmptyAddress(common.HexToAddress(opts.AssetDataB)) {
+		query["assetDataB"] = []string{strings.ToLower(opts.AssetDataB)}
 	}
 	reqURL.RawQuery = query.Encode()
 
@@ -70,13 +70,13 @@ func (c *Client) GetTokenPairs(ctx context.Context, opts GetTokenPairsOpts) ([]t
 		return nil, err
 	}
 
-	tokenPairs := []types.TokenPair{}
+	assetPairs := &types.AssetPairs{}
 
-	if err := json.Unmarshal(respBody, &tokenPairs); err != nil {
+	if err := json.Unmarshal(respBody, &assetPairs); err != nil {
 		return nil, fmt.Errorf("error parsing json response: %v", err)
 	}
 
-	return tokenPairs, nil
+	return assetPairs, nil
 }
 
 type GetOrdersOpts struct {
@@ -101,7 +101,7 @@ func (c *Client) GetOrders(ctx context.Context, opts GetOrdersOpts) ([]types.Ord
 		query["exchangeContractAddress"] = []string{strings.ToLower(opts.ExchangeContractAddress.Hex())}
 	}
 	if !util.EmptyAddress(opts.TokenAddress) {
-		query["tokenAddress"] = []string{strings.ToLower(opts.TokenAddress.Hex())}
+		query["assetAddress"] = []string{strings.ToLower(opts.TokenAddress.Hex())}
 	}
 	if !util.EmptyAddress(opts.MakerTokenAddress) {
 		query["makerTokenAddress"] = []string{strings.ToLower(opts.MakerTokenAddress.Hex())}
@@ -112,9 +112,9 @@ func (c *Client) GetOrders(ctx context.Context, opts GetOrdersOpts) ([]types.Ord
 	if !util.EmptyAddress(opts.Maker) {
 		query["maker"] = []string{strings.ToLower(opts.Maker.Hex())}
 	}
-	if !util.EmptyAddress(opts.Taker) {
-		query["taker"] = []string{strings.ToLower(opts.Taker.Hex())}
-	}
+
+	query["taker"] = []string{strings.ToLower(opts.Taker.Hex())}
+
 	if !util.EmptyAddress(opts.Trader) {
 		query["trader"] = []string{strings.ToLower(opts.Trader.Hex())}
 	}
@@ -187,7 +187,7 @@ func (c *Client) GetOrder(ctx context.Context, orderHash common.Hash) (types.Ord
 }
 
 func (c *Client) CreateOrder(ctx context.Context, order types.Order) error {
-	reqBody, err := order.MarshalJSON()
+	reqBody, err := order.MarshalJSONOrderData()
 	if err != nil {
 		return err
 	}

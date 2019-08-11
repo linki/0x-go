@@ -25,7 +25,8 @@ func init() {
 
 func hashOrder(cmd *cobra.Command, _ []string) {
 	order := types.Order{
-		ExchangeContractAddress: common.HexToAddress(exchangeContractAddress),
+		ExchangeContractAddress:    common.HexToAddress(exchangeContractAddress),
+		Sender:                     common.HexToAddress(sender),
 		Maker:                      common.HexToAddress(maker),
 		Taker:                      common.HexToAddress(taker),
 		MakerTokenAddress:          common.HexToAddress(makerTokenAddress),
@@ -36,7 +37,7 @@ func hashOrder(cmd *cobra.Command, _ []string) {
 		MakerFee:                   util.StrToBig(makerFee),
 		TakerFee:                   util.StrToBig(takerFee),
 		ExpirationUnixTimestampSec: time.Unix(expirationUnixTimestampSec, 0).UTC(),
-		Salt: util.StrToBig(salt),
+		Salt:                       util.StrToBig(salt),
 	}
 
 	fmt.Fprintf(cmd.OutOrStdout(), "%s\n", order.CalculateOrderHash().Hex())

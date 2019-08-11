@@ -19,29 +19,29 @@ type ClientSuite struct {
 	suite.Suite
 	client      *Client
 	url         string
-	tokenA      types.Token
-	tokenB      types.Token
-	tokenPairAB types.TokenPair
+	assetA      types.Asset
+	assetB      types.Asset
+	assetPairAB types.AssetPair
 }
 
 func (suite *ClientSuite) SetupTest() {
 	suite.url = "http://127.0.0.1:8080"
 	suite.client = NewClient(suite.url)
-	suite.tokenA = types.Token{
-		Address:   "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+	suite.assetA = types.Asset{
+		AssetData: "0x323b5d4c32345ced77393b3530b1eed0f346429d",
 		MinAmount: "0",
 		MaxAmount: "10000000000000000000",
 		Precision: 5,
 	}
-	suite.tokenB = types.Token{
-		Address:   "0xef7fff64389b814a946f3e92105513705ca6b990",
+	suite.assetB = types.Asset{
+		AssetData: "0xef7fff64389b814a946f3e92105513705ca6b990",
 		MinAmount: "0",
 		MaxAmount: "50000000000000000000",
 		Precision: 5,
 	}
-	suite.tokenPairAB = types.TokenPair{
-		TokenA: suite.tokenA,
-		TokenB: suite.tokenB,
+	suite.assetPairAB = types.AssetPair{
+		AssetDataA: suite.assetA,
+		AssetDataB: suite.assetB,
 	}
 }
 
@@ -50,82 +50,84 @@ func (suite *ClientSuite) TearDownTest() {
 	gock.Off()
 }
 
-// GET /token_pairs
+// GET /asset_pairs
 
-func (suite *ClientSuite) TestGetTokenPairs() {
+func (suite *ClientSuite) TestGetAssetPairs() {
 	gock.New(suite.url).
-		Get("/token_pairs").
+		Get("/asset_pairs").
 		Reply(http.StatusOK).
-		JSON([]map[string]interface{}{
-			{
-				"tokenA": map[string]interface{}{
-					"address":   "0x323b5d4c32345ced77393b3530b1eed0f346429d",
-					"minAmount": "0",
-					"maxAmount": "10000000000000000000",
-					"precision": 5,
-				},
-				"tokenB": map[string]interface{}{
-					"address":   "0xef7fff64389b814a946f3e92105513705ca6b990",
-					"minAmount": "0",
-					"maxAmount": "50000000000000000000",
-					"precision": 5,
+		JSON(map[string]interface{}{
+			"records": []map[string]interface{}{
+				{
+					"assetDataA": map[string]interface{}{
+						"assetData": "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+						"minAmount": "0",
+						"maxAmount": "10000000000000000000",
+						"precision": 5,
+					},
+					"assetDataB": map[string]interface{}{
+						"assetData": "0xef7fff64389b814a946f3e92105513705ca6b990",
+						"minAmount": "0",
+						"maxAmount": "50000000000000000000",
+						"precision": 5,
+					},
 				},
 			},
 		})
 
-	tokenPairs, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{})
+	assetPairs, err := suite.client.GetAssetPairs(context.Background(), GetAssetPairsOpts{})
 	suite.NoError(err)
 
-	suite.Require().Len(tokenPairs, 1)
-	suite.Equal(suite.tokenPairAB, tokenPairs[0])
+	suite.Require().Len(assetPairs.Records, 1)
+	suite.Equal(suite.assetPairAB, assetPairs.Records[0])
 }
 
-func (suite *ClientSuite) TestGetTokenPairsWithFilters() {
+func (suite *ClientSuite) TestGetAssetPairsWithFilters() {
 	gock.New(suite.url).
-		Get("/token_pairs").
+		Get("/asset_pairs").
 		MatchParams(map[string]string{
-			"tokenA": "0x323b5d4c32345ced77393b3530b1eed0f346429d",
-			"tokenB": "0xef7fff64389b814a946f3e92105513705ca6b990",
+			"assetDataA": "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+			"assetDataB": "0xef7fff64389b814a946f3e92105513705ca6b990",
 		}).
 		Reply(http.StatusOK).
-		JSON([]map[string]interface{}{})
+		JSON(map[string][]map[string]interface{}{})
 
-	tokenPairs, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{
-		TokenA: common.HexToAddress("0x323b5d4c32345ced77393b3530b1eed0f346429d"),
-		TokenB: common.HexToAddress("0xef7fff64389b814a946f3e92105513705ca6b990"),
+	assetPairs, err := suite.client.GetAssetPairs(context.Background(), GetAssetPairsOpts{
+		AssetDataA: "0x323b5d4c32345ced77393b3530b1eed0f346429d",
+		AssetDataB: "0xef7fff64389b814a946f3e92105513705ca6b990",
 	})
-	suite.NoError(err)
+	suite.Require().NoError(err)
 
-	suite.Len(tokenPairs, 0)
+	suite.Len(assetPairs.Records, 0)
 }
 
-func (suite *ClientSuite) TestGetTokenPairsWithUnsuccessfulResponse() {
+func (suite *ClientSuite) TestGetAssetPairsWithUnsuccessfulResponse() {
 	gock.New(suite.url).
-		Get("/token_pairs").
+		Get("/asset_pairs").
 		Reply(http.StatusServiceUnavailable)
 
-	_, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{})
+	_, err := suite.client.GetAssetPairs(context.Background(), GetAssetPairsOpts{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "erroneous status code")
 	suite.Contains(err.Error(), "503 Service Unavailable")
 }
 
-func (suite *ClientSuite) TestGetTokenPairsWithMalformedJSONResponse() {
+func (suite *ClientSuite) TestGetAssetPairsWithMalformedJSONResponse() {
 	gock.New(suite.url).
-		Get("/token_pairs").
+		Get("/asset_pairs").
 		Reply(http.StatusOK).
 		BodyString("//\\")
 
-	_, err := suite.client.GetTokenPairs(context.Background(), GetTokenPairsOpts{})
+	_, err := suite.client.GetAssetPairs(context.Background(), GetAssetPairsOpts{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "error parsing json response")
 }
 
-func (suite *ClientSuite) TestGetTokenPairsWithContext() {
+func (suite *ClientSuite) TestGetAssetPairsWithContext() {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := suite.client.GetTokenPairs(ctx, GetTokenPairsOpts{})
+	_, err := suite.client.GetAssetPairs(ctx, GetAssetPairsOpts{})
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), "context canceled")
 }
@@ -138,46 +140,43 @@ func (suite *ClientSuite) TestGetOrders() {
 		Reply(http.StatusOK).
 		JSON([]map[string]interface{}{
 			{
-				"orderHash":                  "0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942",
-				"exchangeContractAddress":    "0x12459c951127e0c374ff9105dda097662a027093",
-				"maker":                      "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
-				"taker":                      "0x0000000000000000000000000000000000000000",
-				"makerTokenAddress":          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-				"takerTokenAddress":          "0xe41d2489571d322189246dafa5ebde1f4699f498",
-				"feeRecipient":               "0xa258b39954cef5cb142fd567a46cddb31a670124",
-				"makerTokenAmount":           "18981000000000000",
-				"takerTokenAmount":           "19000000000000000000",
-				"makerFee":                   "0",
-				"takerFee":                   "0",
-				"expirationUnixTimestampSec": "1518201120",
-				"salt": "58600101225676680041453168589125977076540694791976419610199695339725548478315",
-				"ecSignature": map[string]interface{}{
-					"v": 28,
-					"r": "0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9",
-					"s": "0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709",
+				"order": map[string]interface{}{
+					"exchangeAddress":       "0x12459c951127e0c374ff9105dda097662a027093",
+					"senderAddress":         "0x0000000000000000000000000000000000000000",
+					"makerAddress":          "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
+					"takerAddress":          "0x0000000000000000000000000000000000000000",
+					"makerAssetData":        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+					"takerAssetData":        "0xe41d2489571d322189246dafa5ebde1f4699f498",
+					"feeRecipientAddress":   "0xa258b39954cef5cb142fd567a46cddb31a670124",
+					"makerAssetAmount":      "18981000000000000",
+					"takerAssetAmount":      "19000000000000000000",
+					"makerFee":              "0",
+					"takerFee":              "0",
+					"expirationTimeSeconds": "1518201120",
+					"signature":             "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
+					"salt":                  "58600101225676680041453168589125977076540694791976419610199695339725548478315",
+				},
+				"metaData": map[string]string{
+					"orderHash": "0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942",
 				},
 			},
 		})
 
 	order := types.Order{
-		OrderHash:               common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
-		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
-		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
-		FeeRecipient:            common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
-		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
-		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
-		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		OrderHash:                  common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
+		Maker:                      common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                      common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		FeeRecipient:               common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
+		MakerTokenAddress:          common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:          common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress:    common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
 		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 		MakerFee:                   common.Big0,
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
 		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
-		Signature: types.Signature{
-			V: 28,
-			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
-			S: common.HexToHash("0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709"),
-		},
+		Signature:                  "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
 	}
 
 	orders, err := suite.client.GetOrders(context.Background(), GetOrdersOpts{})
@@ -192,7 +191,7 @@ func (suite *ClientSuite) TestGetOrdersWithFilters() {
 		Get("/orders").
 		MatchParams(map[string]string{
 			"exchangeContractAddress": "0x12459c951127e0c374ff9105dda097662a027093",
-			"tokenAddress":            "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+			"assetAddress":            "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 			"makerTokenAddress":       "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 			"takerTokenAddress":       "0xe41d2489571d322189246dafa5ebde1f4699f498",
 			"maker":                   "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
@@ -256,45 +255,43 @@ func (suite *ClientSuite) TestGetOrder() {
 		Get("/order/0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942").
 		Reply(http.StatusOK).
 		JSON(map[string]interface{}{
-			"orderHash":                  "0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942",
-			"exchangeContractAddress":    "0x12459c951127e0c374ff9105dda097662a027093",
-			"maker":                      "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
-			"taker":                      "0x0000000000000000000000000000000000000000",
-			"makerTokenAddress":          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-			"takerTokenAddress":          "0xe41d2489571d322189246dafa5ebde1f4699f498",
-			"feeRecipient":               "0xa258b39954cef5cb142fd567a46cddb31a670124",
-			"makerTokenAmount":           "18981000000000000",
-			"takerTokenAmount":           "19000000000000000000",
-			"makerFee":                   "0",
-			"takerFee":                   "0",
-			"expirationUnixTimestampSec": "1518201120",
-			"salt": "58600101225676680041453168589125977076540694791976419610199695339725548478315",
-			"ecSignature": map[string]interface{}{
-				"v": 28,
-				"r": "0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9",
-				"s": "0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709",
+			"order": map[string]interface{}{
+				"exchangeAddress":       "0x12459c951127e0c374ff9105dda097662a027093",
+				"senderAddress":         "0x0000000000000000000000000000000000000000",
+				"makerAddress":          "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
+				"takerAddress":          "0x0000000000000000000000000000000000000000",
+				"makerAssetData":        "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+				"takerAssetData":        "0xe41d2489571d322189246dafa5ebde1f4699f498",
+				"feeRecipientAddress":   "0xa258b39954cef5cb142fd567a46cddb31a670124",
+				"makerAssetAmount":      "18981000000000000",
+				"takerAssetAmount":      "19000000000000000000",
+				"makerFee":              "0",
+				"takerFee":              "0",
+				"expirationTimeSeconds": "1518201120",
+				"signature":             "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
+				"salt":                  "58600101225676680041453168589125977076540694791976419610199695339725548478315",
+			},
+			"metaData": map[string]string{
+				"orderHash": "0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942",
 			},
 		})
 
 	expectedOrder := types.Order{
-		OrderHash:               common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
-		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
-		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
-		FeeRecipient:            common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
-		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
-		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
-		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		OrderHash:                  common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
+		Sender:                     common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		Maker:                      common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                      common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		FeeRecipient:               common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
+		MakerTokenAddress:          common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:          common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress:    common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
 		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 		MakerFee:                   common.Big0,
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
 		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
-		Signature: types.Signature{
-			V: 28,
-			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
-			S: common.HexToHash("0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709"),
-		},
+		Signature:                  "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
 	}
 
 	order, err := suite.client.GetOrder(context.Background(), common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"))
@@ -352,46 +349,38 @@ func (suite *ClientSuite) TestCreateOrder() {
 	gock.New(suite.url).
 		Post("/order").
 		JSON(map[string]interface{}{
-			"orderHash":                  "0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942",
-			"exchangeContractAddress":    "0x12459c951127e0c374ff9105dda097662a027093",
-			"maker":                      "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
-			"taker":                      "0x0000000000000000000000000000000000000000",
-			"makerTokenAddress":          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-			"takerTokenAddress":          "0xe41d2489571d322189246dafa5ebde1f4699f498",
-			"feeRecipient":               "0xa258b39954cef5cb142fd567a46cddb31a670124",
-			"makerTokenAmount":           "18981000000000000",
-			"takerTokenAmount":           "19000000000000000000",
-			"makerFee":                   "0",
-			"takerFee":                   "0",
-			"expirationUnixTimestampSec": "1518201120",
-			"salt": "58600101225676680041453168589125977076540694791976419610199695339725548478315",
-			"ecSignature": map[string]interface{}{
-				"v": 28,
-				"r": "0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9",
-				"s": "0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709",
-			},
+			"exchangeAddress":       "0x12459c951127e0c374ff9105dda097662a027093",
+			"senderAddress":         "0x0000000000000000000000000000000000000000",
+			"makerAddress":          "0xc9b32e9563fe99612ce3a2695ac2a6404c111dde",
+			"takerAddress":          "0x0000000000000000000000000000000000000000",
+			"makerAssetData":        "0xf47261b0000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+			"takerAssetData":        "0xf47261b0000000000000000000000000e41d2489571d322189246dafa5ebde1f4699f498",
+			"feeRecipientAddress":   "0xa258b39954cef5cb142fd567a46cddb31a670124",
+			"makerAssetAmount":      "18981000000000000",
+			"takerAssetAmount":      "19000000000000000000",
+			"makerFee":              "0",
+			"takerFee":              "0",
+			"expirationTimeSeconds": "1518201120",
+			"signature":             "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
+			"salt":                  "58600101225676680041453168589125977076540694791976419610199695339725548478315",
 		}).
 		Reply(http.StatusCreated)
 
 	order := types.Order{
-		OrderHash:               common.HexToHash("0x10d750751d98bc8a9c29542118fbcf2fdb5b4977a3e5abf7cf38d03a6c149942"),
-		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
-		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
-		FeeRecipient:            common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
-		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
-		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
-		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		Sender:                     common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		Maker:                      common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                      common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		FeeRecipient:               common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
+		MakerTokenAddress:          common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:          common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress:    common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
 		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 		MakerFee:                   common.Big0,
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
 		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
-		Signature: types.Signature{
-			V: 28,
-			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
-			S: common.HexToHash("0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709"),
-		},
+		Signature:                  "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
 	}
 
 	err := suite.client.CreateOrder(context.Background(), order)
@@ -404,23 +393,19 @@ func (suite *ClientSuite) TestCreateOrderWithUnsuccessfulResponse() {
 		Reply(http.StatusServiceUnavailable)
 
 	order := types.Order{
-		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
-		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
-		FeeRecipient:            common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
-		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
-		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
-		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		Maker:                      common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                      common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		FeeRecipient:               common.HexToAddress("0xa258b39954cef5cb142fd567a46cddb31a670124"),
+		MakerTokenAddress:          common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:          common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress:    common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
 		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 		MakerFee:                   common.Big0,
 		TakerFee:                   common.Big0,
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),
 		ExpirationUnixTimestampSec: time.Unix(1518201120, 0).UTC(),
-		Signature: types.Signature{
-			V: 28,
-			R: common.HexToHash("0x2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d9"),
-			S: common.HexToHash("0x44ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde127709"),
-		},
+		Signature:                  "0x1c2ffe986adb2ba48a800fe153ec0ec2af8b65856a34a67648e65a4bd6639c54d944ea4220aec0676a41ae7d0bc2433407f2ce892217be30e39d4e44dcde12770903",
 	}
 
 	err := suite.client.CreateOrder(context.Background(), order)
@@ -452,7 +437,7 @@ func (suite *ClientSuite) TestGetFees() {
 			"makerTokenAmount":           "18981000000000000",
 			"takerTokenAmount":           "19000000000000000000",
 			"expirationUnixTimestampSec": "1518201120",
-			"salt": "58600101225676680041453168589125977076540694791976419610199695339725548478315",
+			"salt":                       "58600101225676680041453168589125977076540694791976419610199695339725548478315",
 		}).
 		Reply(http.StatusOK).
 		JSON(map[string]string{
@@ -462,11 +447,11 @@ func (suite *ClientSuite) TestGetFees() {
 		})
 
 	order := types.UnsignedOrder{
-		Maker:                   common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
-		Taker:                   common.HexToAddress("0x0000000000000000000000000000000000000000"),
-		MakerTokenAddress:       common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
-		TakerTokenAddress:       common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
-		ExchangeContractAddress: common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
+		Maker:                      common.HexToAddress("0xc9b32e9563fe99612ce3a2695ac2a6404c111dde"),
+		Taker:                      common.HexToAddress("0x0000000000000000000000000000000000000000"),
+		MakerTokenAddress:          common.HexToAddress("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+		TakerTokenAddress:          common.HexToAddress("0xe41d2489571d322189246dafa5ebde1f4699f498"),
+		ExchangeContractAddress:    common.HexToAddress("0x12459c951127e0c374ff9105dda097662a027093"),
 		Salt:                       util.StrToBig("58600101225676680041453168589125977076540694791976419610199695339725548478315"),
 		MakerTokenAmount:           util.StrToBig("18981000000000000"),
 		TakerTokenAmount:           util.StrToBig("19000000000000000000"),

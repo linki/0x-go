@@ -10,16 +10,16 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type TokenSuite struct {
+type AssetSuite struct {
 	suite.Suite
 }
 
-func (suite *TokenSuite) TestPrice() {
+func (suite *AssetSuite) TestPrice() {
 	for _, tt := range []struct {
-		baseTokenAmount   *big.Int
-		baseTokenDigits   int
-		quoteTokenAmount  *big.Int
-		quoteTokendDigits int
+		baseAssetAmount   *big.Int
+		baseAssetDigits   int
+		quoteAssetAmount  *big.Int
+		quoteAssetdDigits int
 		expected          *big.Float
 	}{
 		{
@@ -75,14 +75,14 @@ func (suite *TokenSuite) TestPrice() {
 		suite.Equal(
 			fmt.Sprintf("%.18f", tt.expected),
 			fmt.Sprintf("%.18f", Price(
-				Token{Digits: tt.baseTokenDigits}.NormalizedValue(tt.baseTokenAmount),
-				Token{Digits: tt.quoteTokendDigits}.NormalizedValue(tt.quoteTokenAmount),
+				Asset{Digits: tt.baseAssetDigits}.NormalizedValue(tt.baseAssetAmount),
+				Asset{Digits: tt.quoteAssetdDigits}.NormalizedValue(tt.quoteAssetAmount),
 			)),
 		)
 	}
 }
 
-func (suite *TokenSuite) TestTokenNormalizedValue() {
+func (suite *AssetSuite) TestAssetNormalizedValue() {
 	for _, tt := range []struct {
 		amount   *big.Int
 		digits   int
@@ -114,14 +114,14 @@ func (suite *TokenSuite) TestTokenNormalizedValue() {
 			expected: big.NewFloat(0.01),
 		},
 	} {
-		token := Token{Digits: tt.digits}
+		asset := Asset{Digits: tt.digits}
 		suite.Equal(
 			fmt.Sprintf("%.18f", tt.expected),
-			fmt.Sprintf("%.18f", token.NormalizedValue(tt.amount)),
+			fmt.Sprintf("%.18f", asset.NormalizedValue(tt.amount)),
 		)
 	}
 }
 
-func TestTokenSuite(t *testing.T) {
-	suite.Run(t, new(TokenSuite))
+func TestAssetSuite(t *testing.T) {
+	suite.Run(t, new(AssetSuite))
 }
