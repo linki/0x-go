@@ -60,5 +60,7 @@ curl -Ss https://api.radarrelay.com/0x/v0/order/0x10d750751d98bc8a9c29542118fbcf
 * go 1.11
 * go-ethereum (geth) 1.8
 
-**WARNING: This is a trivial implementation, the author is not a cryptographer, and the code has not been reviewed. Use
+### Warning
+
+**This is a trivial implementation, the author is not a cryptographer, and the code has not been reviewed. Use
 at your own risk.**
