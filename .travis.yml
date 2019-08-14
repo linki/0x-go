@@ -6,8 +6,11 @@ os:
 language: go
 
 go:
-- "1.11"
+- "1.12"
 - tip
+
+env:
+- GO111MODULE=on
 
 matrix:
   allow_failures:
@@ -16,8 +19,6 @@ matrix:
 install:
 - go get github.com/mattn/goveralls
 - go get github.com/lawrencewoodman/roveralls
-- go get github.com/golang/dep/cmd/dep
-- dep ensure -vendor-only
 
 script:
 - roveralls
