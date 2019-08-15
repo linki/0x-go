@@ -58,7 +58,7 @@ curl -Ss https://api.radarrelay.com/0x/v0/order/0x10d750751d98bc8a9c29542118fbcf
 ### Requirements
 
 * go 1.11
-* go-ethereum (geth) 1.8
+* go-ethereum (geth) 1.9
 
 ### Warning
 
