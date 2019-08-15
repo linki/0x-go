@@ -32,7 +32,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.2 // indirect
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.4.0
 	github.com/syndtr/goleveldb v0.0.0-20180815032940-ae2bd5eed72d // indirect
 	golang.org/x/crypto v0.0.0-20180830192347-182538f80094
 	golang.org/x/tools v0.0.0-20180830214440-4bc20fc7916b // indirect
