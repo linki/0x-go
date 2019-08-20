@@ -8,8 +8,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/h2non/gock"
 	"github.com/stretchr/testify/suite"
+	"gopkg.in/h2non/gock.v1"
 )
 
 type OrdersCreateSuite struct {

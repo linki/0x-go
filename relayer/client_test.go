@@ -11,7 +11,7 @@ import (
 	"github.com/linki/0x-go/types"
 	"github.com/linki/0x-go/util"
 
-	"github.com/h2non/gock"
+	"gopkg.in/h2non/gock.v1"
 	"github.com/stretchr/testify/suite"
 )
 
