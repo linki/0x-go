@@ -21,7 +21,7 @@ require (
 	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/rs/cors v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/cobra v0.0.6
+	github.com/spf13/cobra v0.0.7
 	github.com/status-im/keycard-go v0.0.0-20190424133014-d95853db0f48 // indirect
 	github.com/stretchr/testify v1.5.1
 	github.com/tyler-smith/go-bip39 v1.0.2 // indirect
