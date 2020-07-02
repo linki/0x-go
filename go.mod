@@ -1,6 +1,6 @@
 module github.com/linki/0x-go
 
-go 1.12
+go 1.14
 
 require (
 	github.com/allegro/bigcache v1.2.1 // indirect
